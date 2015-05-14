@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"fmt"
 
 	"github.com/drone/drone-plugin-go/plugin"
 	"github.com/thoj/go-ircevent"
@@ -15,8 +16,8 @@ func main() {
 		Nick    string `json:"nick"`
 		
 		Server  struct {
-			Host string `json:"host"`
-			Port int `json:"port"`
+			Host string     `json:"host"`
+			Port int        `json:"port"`
 			Password string `json:"password"`
 		} `json:"server"`
 		
@@ -42,7 +43,7 @@ func main() {
 
 	client.Password = params.Server.Password
 	
-	err := client.Connect(fmt.Fprintf("%s:%d", params.Server.Host, params.Server.Port))
+	err := client.Connect(fmt.Sprintf("%s:%d", params.Server.Host, params.Server.Port))
 	if err != nil {
 		log.Fatal(err)
 	}

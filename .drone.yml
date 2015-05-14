@@ -1,0 +1,8 @@
+plugin:
+  name: IRC
+  desc: Sends build status notifications to your IRC channel.
+  type: notify
+  image: plugins/drone-irc
+  labels:
+    - chat
+    - messaging
