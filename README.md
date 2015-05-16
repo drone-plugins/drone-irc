@@ -12,7 +12,7 @@ To test this works, you can run this command on your command-line shell:
     "repo" : {
         "owner": "foo",
         "name": "bar",
-        "self": "http://my.drone.io/foo/bar"
+        "self_url": "http://my.drone.io/foo/bar"
     },
     "commit" : {
         "sequence": 1
@@ -56,9 +56,10 @@ docker run -i plugins/drone-irc <<EOF
     "repo" : {
         "owner": "foo",
         "name": "bar",
-        "self": "http://my.drone.io/foo/bar"
+        "self_url": "http://my.drone.io/foo/bar"
     },
     "commit" : {
+        "sequence": 1
         "state": "success",
         "started_at": 1421029603,
         "finished_at": 1421029813,
@@ -71,7 +72,10 @@ docker run -i plugins/drone-irc <<EOF
     "vargs": {
         "channel": "#development",
         "server": {
-          "host": "some.irc.server",
+          "port": 6697,
+          "host": "irc.foobar.com",
+          "password": "pa$$word",
+          "tls": true
         },
         "nick": "test-drone"
     }
