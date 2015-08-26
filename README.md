@@ -14,16 +14,20 @@ To test this works, you can run this command on your command-line shell:
         "name": "bar",
         "self_url": "http://my.drone.io/foo/bar"
     },
-    "commit" : {
-        "sequence": 1
-        "state": "success",
+    "build" : {
+        "number": 22,
+        "status": "success",
         "started_at": 1421029603,
         "finished_at": 1421029813,
-        "sha": "9f2849d5",
-        "branch": "master",
-        "pull_request": "800",
-        "author": "john.smith@gmail.com",
-        "message": "Update the Readme"
+        "head_commit": {
+            "sha": "9f2849d5",
+            "branch": "master",
+            "message": "Update the Readme",
+            "author": {
+                "login": "johnsmith",
+                "email": "john.smith@gmail.com"
+            }
+        }
     },
     "vargs": {
         "channel": "#development",
@@ -58,16 +62,20 @@ docker run -i plugins/drone-irc <<EOF
         "name": "bar",
         "self_url": "http://my.drone.io/foo/bar"
     },
-    "commit" : {
-        "sequence": 1
-        "state": "success",
+    "build" : {
+        "number": 22,
+        "status": "success",
         "started_at": 1421029603,
         "finished_at": 1421029813,
-        "sha": "9f2849d5",
-        "branch": "master",
-        "pull_request": "800",
-        "author": "john.smith@gmail.com",
-        "message": "Update the Readme"
+        "head_commit": {
+            "sha": "9f2849d5",
+            "branch": "master",
+            "message": "Update the Readme",
+            "author": {
+                "login": "johnsmith",
+                "email": "john.smith@gmail.com"
+            }
+        }
     },
     "vargs": {
         "channel": "#development",
