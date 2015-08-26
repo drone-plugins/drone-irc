@@ -2,69 +2,99 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"strings"
 
 	"github.com/drone/drone-plugin-go/plugin"
 	"github.com/thoj/go-ircevent"
 )
 
+type Arguments struct {
+	Prefix string `json:"prefix"`
+	Nick   string `json:"nick"`
+
+	Server struct {
+		Host     string `json:"host"`
+		Port     int    `json:"port"`
+		Password string `json:"password"`
+		TLS      bool   `json:"tls"`
+	} `json:"server"`
+
+	Channel string `json:"channel"`
+}
+
 func main() {
 	repo := plugin.Repo{}
-	commit := plugin.Commit{}
+	build := plugin.Build{}
+	vargs := Arguments{}
 
-	var params struct {
-		Nick string `json:"nick"`
-
-		Server struct {
-			Host     string `json:"host"`
-			Port     int    `json:"port"`
-			Password string `json:"password"`
-			TLS      bool   `json:"tls"`
-		} `json:"server"`
-
-		Channel string `json:"channel"`
-	}
-
+	plugin.Param("build", &build)
 	plugin.Param("repo", &repo)
-	plugin.Param("commit", &commit)
-	plugin.Param("vargs", &params)
+	plugin.Param("vargs", &vargs)
 
 	if err := plugin.Parse(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	if params.Server.Port == 0 {
-		params.Server.Port = 6667
+	if vargs.Nick == "" {
+		r := rand.New(rand.NewSource(99))
+		vargs.Nick = fmt.Sprintf("drone%d", r.Int31())
 	}
 
-	client := irc.IRC(params.Nick, params.Nick)
+	if vargs.Prefix == "" {
+		vargs.Prefix = "drone"
+	}
+
+	if vargs.Server.Port == 0 {
+		vargs.Server.Port = 6667
+	}
+
+	client := irc.IRC(vargs.Nick, vargs.Nick)
+
 	if client == nil {
 		fmt.Println("Failed to make IRC Client: Invalid nick?")
 		os.Exit(1)
 	}
 
-	client.Password = params.Server.Password
-	client.UseTLS = params.Server.TLS
+	client.Password = vargs.Server.Password
+	client.UseTLS = vargs.Server.TLS
 
-	err := client.Connect(fmt.Sprintf("%s:%d", params.Server.Host, params.Server.Port))
-	if err != nil {
+	if err := client.Connect(fmt.Sprintf("%s:%d", vargs.Server.Host, vargs.Server.Port)); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	// Listen for errors and immediately exit with
-	// and error status.
 	go func() {
-		err := <-client.ErrorChan()
-		if err != nil {
+		if err := <-client.ErrorChan(); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	}()
 
 	client.AddCallback("001", func(_ *irc.Event) {
-		client.Noticef(params.Channel, "[Drone %s/%s/%d] %s (%s/%d)", repo.Owner, repo.Name, commit.Sequence, commit.State, repo.Self, commit.Sequence)
+		if strings.HasPrefix(vargs.Channel, "#") {
+			client.Join(vargs.Channel)
+		}
+
+		client.Privmsgf(
+			vargs.Channel,
+			"[%s %s/%s#%s] %s on %s by %s (%s/%v)",
+			vargs.Prefix,
+			repo.Owner,
+			repo.Name,
+			build.Commit.Sha[:8],
+			build.Status,
+			build.Commit.Branch,
+			build.Commit.Author.Login,
+			repo.Self,
+			build.Number)
+
+		if strings.HasPrefix(vargs.Channel, "#") {
+			client.Part(vargs.Channel)
+		}
+
 		client.Quit()
 	})
 
