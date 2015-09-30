@@ -21,7 +21,8 @@ type Arguments struct {
 		TLS      bool   `json:"tls"`
 	} `json:"server"`
 
-	Channel string `json:"channel"`
+	Channel   string `json:"channel"`
+	Recipient string `json:"recipient"`
 }
 
 func main() {
@@ -40,13 +41,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	if vargs.Nick == "" {
+	if len(vargs.Nick) == 0 {
 		r := rand.New(rand.NewSource(99))
 		vargs.Nick = fmt.Sprintf("drone%d", r.Int31())
 	}
 
-	if vargs.Prefix == "" {
-		vargs.Prefix = "drone"
+	if len(vargs.Prefix) == 0 {
+		vargs.Prefix = "build"
 	}
 
 	if vargs.Server.Port == 0 {
@@ -57,6 +58,11 @@ func main() {
 
 	if client == nil {
 		fmt.Println("Failed to make IRC Client: Invalid nick?")
+		os.Exit(1)
+	}
+
+	if len(vargs.Channel) == 0 && len(vargs.Recipient) == 0 {
+		fmt.Println("Please provide a channel or recipient")
 		os.Exit(1)
 	}
 
@@ -76,12 +82,24 @@ func main() {
 	}()
 
 	client.AddCallback("001", func(_ *irc.Event) {
-		if strings.HasPrefix(vargs.Channel, "#") {
-			client.Join(vargs.Channel)
+		var destination string
+
+		if len(vargs.Recipient) != 0 {
+			destination = vargs.Recipient
+		} else {
+			if strings.HasPrefix(vargs.Channel, "#") {
+				destination = vargs.Channel
+			} else {
+				destination = "#" + vargs.Channel
+			}
+		}
+
+		if strings.HasPrefix(destination, "#") {
+			client.Join(destination)
 		}
 
 		client.Privmsgf(
-			vargs.Channel,
+			destination,
 			"[%s %s/%s#%s] %s on %s by %s (%s/%s/%v)",
 			vargs.Prefix,
 			repo.Owner,
@@ -94,8 +112,8 @@ func main() {
 			repo.FullName,
 			build.Number)
 
-		if strings.HasPrefix(vargs.Channel, "#") {
-			client.Part(vargs.Channel)
+		if strings.HasPrefix(destination, "#") {
+			client.Part(destination)
 		}
 
 		client.Quit()
