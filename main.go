@@ -27,10 +27,12 @@ type Arguments struct {
 func main() {
 	repo := plugin.Repo{}
 	build := plugin.Build{}
+	system := plugin.System{}
 	vargs := Arguments{}
 
 	plugin.Param("build", &build)
 	plugin.Param("repo", &repo)
+	plugin.Param("system", &system)
 	plugin.Param("vargs", &vargs)
 
 	if err := plugin.Parse(); err != nil {
@@ -80,15 +82,16 @@ func main() {
 
 		client.Privmsgf(
 			vargs.Channel,
-			"[%s %s/%s#%s] %s on %s by %s (%s/%v)",
+			"[%s %s/%s#%s] %s on %s by %s (%s/%s/%v)",
 			vargs.Prefix,
 			repo.Owner,
 			repo.Name,
-			build.Commit.Sha[:8],
+			build.Commit[:8],
 			build.Status,
-			build.Commit.Branch,
-			build.Commit.Author.Login,
-			repo.Self,
+			build.Branch,
+			build.Author,
+			system.Link,
+			repo.FullName,
 			build.Number)
 
 		if strings.HasPrefix(vargs.Channel, "#") {
