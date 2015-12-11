@@ -1,12 +1,13 @@
 # drone-irc
 
-Drone plugin for sending IRC messages.
+[![Build Status](http://beta.drone.io/api/badges/drone-plugins/drone-irc/status.svg)](http://beta.drone.io/drone-plugins/drone-irc)
+[![](https://badge.imagelayers.io/plugins/drone-irc:latest.svg)](https://imagelayers.io/?images=plugins/drone-irc:latest 'Get your own badge on imagelayers.io')
 
-# Testing
+Drone plugin for sending build status notifications via IRC
 
-To test this works, you can run this command on your command-line shell:
+## Usage
 
-```bash
+```sh
 ./drone-irc <<EOF
 {
     "repo" : {
@@ -22,36 +23,36 @@ To test this works, you can run this command on your command-line shell:
         "status": "success",
         "started_at": 1421029603,
         "finished_at": 1421029813,
-        "commit": "9f2849d5",
+        "commit": "64908ed2414b771554fda6508dd56a0c43766831",
         "branch": "master",
         "message": "Update the Readme",
         "author": "johnsmith",
         "author_email": "john.smith@gmail.com"
     },
     "vargs": {
-        "channel": "#development",
+        "channel": "development",
+        "nick": "test-drone",
         "server": {
-          "port": 6697,
-          "host": "irc.foobar.com",
-          "password": "pa$$word",
-          "tls": true
-        },
-        "nick": "test-drone"
+            "port": 6697,
+            "host": "irc.foobar.com",
+            "password": "pa$$word",
+            "tls": true
+        }
     }
 }
 EOF
 ```
+
 ## Docker
 
-Build the Docker container. Note that we need to use the `-netgo` tag so that
-the binary is built without a CGO dependency:
+Build the Docker container using `make`:
 
 ```sh
-CGO_ENABLED=0 go build -a -tags netgo
+make deps build
 docker build --rm=true -t plugins/drone-irc .
 ```
 
-Send an IRC notification:
+### Example
 
 ```sh
 docker run -i plugins/drone-irc <<EOF
@@ -59,32 +60,31 @@ docker run -i plugins/drone-irc <<EOF
     "repo" : {
         "owner": "foo",
         "name": "bar",
-        "self_url": "http://my.drone.io/foo/bar"
+        "full_name": "foo/bar"
+    },
+    "system": {
+        "link_url": "http://drone.mycompany.com"
     },
     "build" : {
         "number": 22,
         "status": "success",
         "started_at": 1421029603,
         "finished_at": 1421029813,
-        "head_commit": {
-            "sha": "9f2849d5",
-            "branch": "master",
-            "message": "Update the Readme",
-            "author": {
-                "login": "johnsmith",
-                "email": "john.smith@gmail.com"
-            }
-        }
+        "commit": "64908ed2414b771554fda6508dd56a0c43766831",
+        "branch": "master",
+        "message": "Update the Readme",
+        "author": "johnsmith",
+        "author_email": "john.smith@gmail.com"
     },
     "vargs": {
-        "channel": "#development",
+        "channel": "development",
+        "nick": "test-drone",
         "server": {
-          "port": 6697,
-          "host": "irc.foobar.com",
-          "password": "pa$$word",
-          "tls": true
-        },
-        "nick": "test-drone"
+            "port": 6697,
+            "host": "irc.foobar.com",
+            "password": "pa$$word",
+            "tls": true
+        }
     }
 }
 EOF

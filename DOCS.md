@@ -1,22 +1,26 @@
-Use the IRC plugin to send a message to an IRC channel when a build completes.
-The following parameters are used to configuration the notification:
+Use this plugin for sending build status notifications via IRC. You can override
+the default configuration with the following parameters:
 
-* **host** - connects to this host
-* **port** - connects to this port
-* **password** - authenicates using this password
-* **channel** - messages sent to the above server are posted here
-* **recipient** - alternatively you can send it to a specific user
-* **nick** - choose the nickname this plugin will post as
-* **prefix** - choose the prefix for the sent notifications
+* `prefix` - Prefix for the sent notifications
+* `nick` - Nickname used by the bot
+* `channel` - Messages sent are posted here
+* `recipient` - Alternatively you can send it to a specific user
+* `server` - Connection information for the server
+  * `host` - IRC server host to connect to
+  * `port` - IRC server port, defaults to 6667
+  * `password` - Password for IRC server, optional
+  * `tls` - Enable TLS, defaults to false
 
-The following is a sample IRC configuration in your .drone.yml file:
+## Example
+
+The following is a sample configuration in your .drone.yml file:
 
 ```yaml
 notify:
   irc:
     prefix: build
     nick: drone
-    channel: dev
+    channel: my-channel
     server:
       host: chat.freenode.net
       port: 6667
