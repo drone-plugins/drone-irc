@@ -3,47 +3,40 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"net"
 	"os"
+	"strconv"
 	"strings"
 
-	"github.com/drone/drone-plugin-go/plugin"
+	"github.com/drone/drone-go/drone"
+	"github.com/drone/drone-go/plugin"
 	"github.com/thoj/go-ircevent"
 )
 
-type Arguments struct {
-	Prefix string `json:"prefix"`
-	Nick   string `json:"nick"`
-
-	Server struct {
-		Host     string `json:"host"`
-		Port     int    `json:"port"`
-		Password string `json:"password"`
-		TLS      bool   `json:"tls"`
-	} `json:"server"`
-
-	Channel   string `json:"channel"`
-	Recipient string `json:"recipient"`
-}
+var (
+	build     string
+	buildDate string
+)
 
 func main() {
-	repo := plugin.Repo{}
-	build := plugin.Build{}
-	system := plugin.System{}
-	vargs := Arguments{}
+	fmt.Printf("Drone IRC Plugin built at %s\n", buildDate)
 
-	plugin.Param("build", &build)
-	plugin.Param("repo", &repo)
+	system := drone.System{}
+	repo := drone.Repo{}
+	build := drone.Build{}
+	vargs := Params{}
+
 	plugin.Param("system", &system)
+	plugin.Param("repo", &repo)
+	plugin.Param("build", &build)
 	plugin.Param("vargs", &vargs)
+	plugin.MustParse()
 
-	if err := plugin.Parse(); err != nil {
-		fmt.Println(err)
+	if len(vargs.Channel) == 0 && len(vargs.Recipient) == 0 {
+		fmt.Println("Please provide a channel or recipient")
+
 		os.Exit(1)
-	}
-
-	if len(vargs.Nick) == 0 {
-		r := rand.New(rand.NewSource(99))
-		vargs.Nick = fmt.Sprintf("drone%d", r.Int31())
+		return
 	}
 
 	if len(vargs.Prefix) == 0 {
@@ -54,30 +47,43 @@ func main() {
 		vargs.Server.Port = 6667
 	}
 
-	client := irc.IRC(vargs.Nick, vargs.Nick)
-
-	if client == nil {
-		fmt.Println("Failed to make IRC Client: Invalid nick?")
-		os.Exit(1)
+	if len(vargs.Nick) == 0 {
+		r := rand.New(rand.NewSource(99))
+		vargs.Nick = fmt.Sprintf("drone%d", r.Int31())
 	}
 
-	if len(vargs.Channel) == 0 && len(vargs.Recipient) == 0 {
-		fmt.Println("Please provide a channel or recipient")
+	client := irc.IRC(
+		vargs.Nick,
+		vargs.Nick)
+
+	if client == nil {
+		fmt.Println("Failed to create IRC Client: Invalid nick?")
+
 		os.Exit(1)
+		return
 	}
 
 	client.Password = vargs.Server.Password
 	client.UseTLS = vargs.Server.TLS
 
-	if err := client.Connect(fmt.Sprintf("%s:%d", vargs.Server.Host, vargs.Server.Port)); err != nil {
+	err := client.Connect(
+		net.JoinHostPort(
+			vargs.Server.Host,
+			strconv.Itoa(vargs.Server.Port)))
+
+	if err != nil {
 		fmt.Println(err)
+
 		os.Exit(1)
+		return
 	}
 
 	go func() {
 		if err := <-client.ErrorChan(); err != nil {
 			fmt.Println(err)
+
 			os.Exit(1)
+			return
 		}
 	}()
 
