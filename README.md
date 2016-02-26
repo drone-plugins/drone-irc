@@ -4,7 +4,7 @@
 [![Coverage Status](https://aircover.co/badges/drone-plugins/drone-irc/coverage.svg)](https://aircover.co/drone-plugins/drone-irc)
 [![](https://badge.imagelayers.io/plugins/drone-irc:latest.svg)](https://imagelayers.io/?images=plugins/drone-irc:latest 'Get your own badge on imagelayers.io')
 
-Drone plugin to send build status notifications via IRC
+Drone plugin to send build status notifications via IRC. For the usage information and a listing of the available options please take a look at [the docs](DOCS.md).
 
 ## Binary
 
