@@ -5,11 +5,10 @@ the default configuration with the following parameters:
 * `nick` - Nickname used by the bot
 * `channel` - Messages sent are posted here
 * `recipient` - Alternatively you can send it to a specific user
-* `server` - Connection information for the server
-  * `host` - IRC server host to connect to
-  * `port` - IRC server port, defaults to 6667
-  * `password` - Password for IRC server, optional
-  * `tls` - Enable TLS, defaults to false
+* `host` - IRC server host to connect to
+* `port` - IRC server port, defaults to 6667
+* `password` - Password for IRC server, optional
+* `enable_tls` - Enable TLS, defaults to false
 
 ## Example
 
@@ -21,7 +20,6 @@ notify:
     prefix: build
     nick: drone
     channel: my-channel
-    server:
-      host: chat.freenode.net
-      port: 6667
+    host: chat.freenode.net
+    port: 6667
 ```

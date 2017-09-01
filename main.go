@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-var build string
+var build string // build number set at compile-time
 
 func main() {
 	app := cli.NewApp()
@@ -25,38 +25,38 @@ func main() {
 		cli.StringFlag{
 			Name:   "nick",
 			Usage:  "nickname used by bot",
-			EnvVar: "PLUGIN_NICK,",
+			EnvVar: "PLUGIN_NICK",
 		},
 		cli.StringFlag{
 			Name:   "channel",
 			Usage:  "channel to post message in",
-			EnvVar: "PLUGIN_CHANNEL,",
+			EnvVar: "PLUGIN_CHANNEL",
 		},
 		cli.StringFlag{
 			Name:   "recipient",
 			Usage:  "recipient",
 			EnvVar: "PLUGIN_RECIPIENT",
 		},
+		cli.StringFlag{
+			Name:   "host",
+			Usage:  "host",
+			EnvVar: "PLUGIN_HOST",
+		},
 		cli.IntFlag{
-			Name:   "irc-host",
-			Usage:  "irc-host",
-			EnvVar: "PLUGIN_IRC_HOST",
+			Name:   "port",
+			Usage:  "port",
+			EnvVar: "PLUGIN_PORT",
 			Value:  6667,
 		},
 		cli.StringFlag{
-			Name:   "irc-port",
-			Usage:  "irc-port",
-			EnvVar: "PLUGIN_IRC_PORT",
-		},
-		cli.StringFlag{
-			Name:   "irc-password",
-			Usage:  "irc-password",
-			EnvVar: "PLUGIN_IRC_PASSWORD",
+			Name:   "password",
+			Usage:  "password",
+			EnvVar: "PLUGIN_PASSWORD, IRC_PASSWORD",
 		},
 		cli.BoolFlag{
-			Name:   "irc-enable-tls",
+			Name:   "enable-tls",
 			Usage:  "enable-tls",
-			EnvVar: "PLUGIN_IRC_ENABLE_TLS",
+			EnvVar: "PLUGIN_ENABLE_TLS",
 		},
 		cli.StringFlag{
 			Name:   "template",
@@ -72,16 +72,6 @@ func main() {
 			Name:   "urls",
 			Usage:  "List of urls to perform the action on",
 			EnvVar: "PLUGIN_URLS",
-		},
-		cli.BoolFlag{
-			Name:   "debug",
-			Usage:  "For debug information",
-			EnvVar: "PLUGIN_DEBUG",
-		},
-		cli.BoolFlag{
-			Name:   "skip-verify",
-			Usage:  "Skip ssl verification",
-			EnvVar: "PLUGIN_SKIP_VERIFY",
 		},
 		cli.StringFlag{
 			Name:   "repo.owner",
@@ -201,10 +191,10 @@ func run(c *cli.Context) error {
 			Nick:         c.String("nick"),
 			Channel:      c.String("channel"),
 			Recipient:    c.String("recipient"),
-			IRCHost:      c.String("irc-host"),
-			IRCPort:      c.Int("irc-port"),
-			IRCPassword:  c.String("irc-password"),
-			IRCEnableTLS: c.Bool("irc-enable-tls"),
+			IRCHost:      c.String("host"),
+			IRCPort:      c.Int("port"),
+			IRCPassword:  c.String("password"),
+			IRCEnableTLS: c.Bool("enable-tls"),
 		},
 	}
 	return plugin.Exec()

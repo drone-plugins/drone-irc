@@ -12,23 +12,23 @@ import (
 
 type (
 	Repo struct {
-		Owner string `json:"owner"`
-		Name  string `json:"name"`
+		Owner string
+		Name  string
 	}
 
 	Build struct {
-		Tag     string `json:"tag"`
-		Event   string `json:"event"`
-		Number  int    `json:"number"`
-		Commit  string `json:"commit"`
-		Ref     string `json:"ref"`
-		Branch  string `json:"branch"`
-		Author  string `json:"author"`
-		Message string `json:"message"`
-		Status  string `json:"status"`
-		Link    string `json:"link"`
-		Started int64  `json:"started"`
-		Created int64  `json:"created"`
+		Tag     string
+		Event   string
+		Number  int
+		Commit  string
+		Ref     string
+		Branch  string
+		Author  string
+		Message string
+		Status  string
+		Link    string
+		Started int64
+		Created int64
 	}
 
 	Config struct {
@@ -56,19 +56,7 @@ type (
 
 func (p Plugin) Exec() error {
 
-	//system := drone.System{}
-	//repo := drone.Repo{}
-	//build := drone.Build{}
-	//vargs := Params{}
-
-	//plugin.Param("system", &system)
-	//plugin.Param("repo", &repo)
-	//plugin.Param("build", &build)
-	//plugin.Param("vargs", &vargs)
-	//plugin.MustParse()
-
 	if len(p.Config.Channel) == 0 && len(p.Config.Recipient) == 0 {
-		fmt.Println("Please provide a channel or recipient")
 		return fmt.Errorf("Please provide a channel or recipient")
 	}
 

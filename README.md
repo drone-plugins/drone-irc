@@ -33,8 +33,8 @@ docker build --rm -t plugins/irc .
   docker run --rm \
     -e PLUGIN_IRC_HOST=irc.someserver.com \
     -e PLUGIN_NICK="test-drone" \
-    -e PLUGIN_IRC_PASSWORD=password \
-    -e PLUGIN_IRC_ENABLE_TLS=true \
+    -e PLUGIN_PASSWORD=password \
+    -e PLUGIN_ENABLE_TLS=true \
     -e DRONE_REPO_OWNER=octocat \
     -e DRONE_REPO_NAME=hello-world \
     -e DRONE_COMMIT_SHA=7fd1a60b01f91b314f59955a4e4d4e80d8edf11d \
