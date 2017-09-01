@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"github.com/thoj/go-ircevent"
+	"math/rand"
 	"net"
+	"os"
 	"strconv"
 	"strings"
-	"math/rand"
-	"github.com/thoj/go-ircevent"
 )
 
 type (
@@ -32,13 +32,13 @@ type (
 	}
 
 	Config struct {
-		Prefix string
-		Nick string
-		Channel string
-		Recipient string
-		IRCHost string
-		IRCPort int
-		IRCPassword string
+		Prefix       string
+		Nick         string
+		Channel      string
+		Recipient    string
+		IRCHost      string
+		IRCPort      int
+		IRCPassword  string
 		IRCEnableTLS bool
 	}
 
@@ -56,12 +56,10 @@ type (
 
 func (p Plugin) Exec() error {
 
-
 	//system := drone.System{}
 	//repo := drone.Repo{}
 	//build := drone.Build{}
 	//vargs := Params{}
-
 
 	//plugin.Param("system", &system)
 	//plugin.Param("repo", &repo)
@@ -133,7 +131,7 @@ func (p Plugin) Exec() error {
 			p.Build.Status,
 			p.Build.Branch,
 			p.Build.Author,
-			p.Build.Link,)
+			p.Build.Link)
 
 		if strings.HasPrefix(destination, "#") {
 			client.Part(destination)

@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"log"
 	"github.com/urfave/cli"
+	"log"
+	"os"
 )
 
 var build string
@@ -197,17 +197,15 @@ func run(c *cli.Context) error {
 			Started: c.Int64("job.started"),
 		},
 		Config: Config{
-			Prefix: c.String("prefix"),
-			Nick: c.String("nick"),
-			Channel: c.String("channel"),
-			Recipient: c.String("recipient"),
-			IRCHost: c.String("irc-host"),
-			IRCPort: c.Int("irc-port"),
-			IRCPassword: c.String("irc-password"),
+			Prefix:       c.String("prefix"),
+			Nick:         c.String("nick"),
+			Channel:      c.String("channel"),
+			Recipient:    c.String("recipient"),
+			IRCHost:      c.String("irc-host"),
+			IRCPort:      c.Int("irc-port"),
+			IRCPassword:  c.String("irc-password"),
 			IRCEnableTLS: c.Bool("irc-enable-tls"),
 		},
 	}
 	return plugin.Exec()
 }
-
-
