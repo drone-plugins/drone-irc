@@ -1,113 +1,48 @@
 # drone-irc
 
 [![Build Status](http://beta.drone.io/api/badges/drone-plugins/drone-irc/status.svg)](http://beta.drone.io/drone-plugins/drone-irc)
-[![Coverage Status](https://aircover.co/badges/drone-plugins/drone-irc/coverage.svg)](https://aircover.co/drone-plugins/drone-irc)
-[![](https://badge.imagelayers.io/plugins/drone-irc:latest.svg)](https://imagelayers.io/?images=plugins/drone-irc:latest 'Get your own badge on imagelayers.io')
+[![Join the chat at https://gitter.im/drone/drone](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/drone/drone)
+[![Go Doc](https://godoc.org/github.com/drone-plugins/drone-irc?status.svg)](http://godoc.org/github.com/drone-plugins/drone-irc)
+[![Go Report](https://goreportcard.com/badge/github.com/drone-plugins/drone-irc)](https://goreportcard.com/report/github.com/drone-plugins/drone-irc)
+[![](https://images.microbadger.com/badges/image/plugins/irc.svg)](https://microbadger.com/images/plugins/irc "Get your own image badge on microbadger.com")
 
 Drone plugin to send build status notifications via IRC. For the usage information and a listing of the available options please take a look at [the docs](DOCS.md).
 
-## Binary
+## Build
 
-Build the binary using `make`:
+Build the binary with the following commands:
 
 ```
-make deps build
-```
-
-### Example
-
-```sh
-./drone-irc <<EOF
-{
-    "repo": {
-        "clone_url": "git://github.com/drone/drone",
-        "owner": "drone",
-        "name": "drone",
-        "full_name": "drone/drone"
-    },
-    "system": {
-        "link_url": "https://beta.drone.io"
-    },
-    "build": {
-        "number": 22,
-        "status": "success",
-        "started_at": 1421029603,
-        "finished_at": 1421029813,
-        "message": "Update the Readme",
-        "author": "johnsmith",
-        "author_email": "john.smith@gmail.com"
-        "event": "push",
-        "branch": "master",
-        "commit": "436b7a6e2abaddfd35740527353e78a227ddcb2c",
-        "ref": "refs/heads/master"
-    },
-    "workspace": {
-        "root": "/drone/src",
-        "path": "/drone/src/github.com/drone/drone"
-    },
-    "vargs": {
-        "channel": "development",
-        "nick": "test-drone",
-        "server": {
-            "port": 6697,
-            "host": "irc.foobar.com",
-            "password": "pa$$word",
-            "tls": true
-        }
-    }
-}
-EOF
+go build
 ```
 
 ## Docker
 
-Build the container using `make`:
+Build the Docker image with the following commands:
 
 ```
-make deps docker
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -tags netgo -o release/linux/amd64/drone-irc
+docker build --rm -t plugins/irc .
 ```
 
 ### Example
 
-```sh
-docker run -i plugins/drone-irc <<EOF
-{
-    "repo": {
-        "clone_url": "git://github.com/drone/drone",
-        "owner": "drone",
-        "name": "drone",
-        "full_name": "drone/drone"
-    },
-    "system": {
-        "link_url": "https://beta.drone.io"
-    },
-    "build": {
-        "number": 22,
-        "status": "success",
-        "started_at": 1421029603,
-        "finished_at": 1421029813,
-        "message": "Update the Readme",
-        "author": "johnsmith",
-        "author_email": "john.smith@gmail.com"
-        "event": "push",
-        "branch": "master",
-        "commit": "436b7a6e2abaddfd35740527353e78a227ddcb2c",
-        "ref": "refs/heads/master"
-    },
-    "workspace": {
-        "root": "/drone/src",
-        "path": "/drone/src/github.com/drone/drone"
-    },
-    "vargs": {
-        "channel": "development",
-        "nick": "test-drone",
-        "server": {
-            "port": 6697,
-            "host": "irc.foobar.com",
-            "password": "pa$$word",
-            "tls": true
-        }
-    }
-}
-EOF
+### Usage
+
+```
+  docker run --rm \
+    -e PLUGIN_IRC_HOST=irc.someserver.com \
+    -e PLUGIN_NICK="test-drone" \
+    -e PLUGIN_IRC_PASSWORD=password \
+    -e PLUGIN_IRC_ENABLE_TLS=true \
+    -e DRONE_REPO_OWNER=octocat \
+    -e DRONE_REPO_NAME=hello-world \
+    -e DRONE_COMMIT_SHA=7fd1a60b01f91b314f59955a4e4d4e80d8edf11d \
+    -e DRONE_COMMIT_BRANCH=master \
+    -e DRONE_COMMIT_AUTHOR=octocat \
+    -e DRONE_BUILD_NUMBER=1 \
+    -e DRONE_BUILD_STATUS=success \
+    -e DRONE_BUILD_LINK=http://github.com/octocat/hello-world \
+    -e DRONE_TAG=1.0.0 \
+    plugins/webhook
 ```
