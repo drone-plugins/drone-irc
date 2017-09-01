@@ -115,7 +115,7 @@ func (p Plugin) Exec() error {
 			p.Config.Prefix,
 			p.Repo.Owner,
 			p.Repo.Name,
-			p.Build.Commit[:8],
+			p.Build.Commit,
 			p.Build.Status,
 			p.Build.Branch,
 			p.Build.Author,
