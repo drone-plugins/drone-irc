@@ -31,7 +31,7 @@ docker build --rm -t plugins/irc .
 
 ```
   docker run --rm \
-    -e PLUGIN_IRC_HOST=irc.someserver.com \
+    -e PLUGIN_HOST=irc.someserver.com \
     -e PLUGIN_NICK="test-drone" \
     -e PLUGIN_PASSWORD=password \
     -e PLUGIN_ENABLE_TLS=true \
