@@ -5,9 +5,9 @@ import (
 	"github.com/thoj/go-ircevent"
 	"math/rand"
 	"net"
+	"os"
 	"strconv"
 	"strings"
-	"os"
 )
 
 type (
@@ -80,7 +80,7 @@ func (p Plugin) Exec() error {
 	client.UseTLS = p.Config.IRCEnableTLS
 	client.Debug = p.Config.IRCDebug
 	client.UseSASL = p.Config.IRCSASL
-	if p.Config.IRCSASL{
+	if p.Config.IRCSASL {
 		client.SASLLogin = p.Config.Nick
 		client.SASLPassword = p.Config.SASLPassword
 	}
@@ -101,38 +101,38 @@ func (p Plugin) Exec() error {
 		}
 	}()
 	client.AddCallback("001", func(event *irc.Event) {
-			var destination string
+		var destination string
 
-			if len(p.Config.Recipient) != 0 {
-				destination = p.Config.Recipient
+		if len(p.Config.Recipient) != 0 {
+			destination = p.Config.Recipient
+		} else {
+			if strings.HasPrefix(p.Config.Channel, "#") {
+				destination = p.Config.Channel
 			} else {
-				if strings.HasPrefix(p.Config.Channel, "#") {
-					destination = p.Config.Channel
-				} else {
-					destination = "#" + p.Config.Channel
-				}
+				destination = "#" + p.Config.Channel
 			}
+		}
 
-			if strings.HasPrefix(destination, "#") {
-				client.Join(destination)
-			}
+		if strings.HasPrefix(destination, "#") {
+			client.Join(destination)
+		}
 
-			client.Privmsgf(
-				destination,
-				"[%s %s/%s#%s] %s on %s by %s (%s)",
-				p.Config.Prefix,
-				p.Repo.Owner,
-				p.Repo.Name,
-				p.Build.Commit,
-				p.Build.Status,
-				p.Build.Branch,
-				p.Build.Author,
-				p.Build.Link)
+		client.Privmsgf(
+			destination,
+			"[%s %s/%s#%s] %s on %s by %s (%s)",
+			p.Config.Prefix,
+			p.Repo.Owner,
+			p.Repo.Name,
+			p.Build.Commit,
+			p.Build.Status,
+			p.Build.Branch,
+			p.Build.Author,
+			p.Build.Link)
 
-			if strings.HasPrefix(destination, "#") {
-				client.Part(destination)
-			}
-			client.Quit()
+		if strings.HasPrefix(destination, "#") {
+			client.Part(destination)
+		}
+		client.Quit()
 	})
 
 	client.Loop()

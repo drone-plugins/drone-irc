@@ -65,28 +65,13 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:   "use-sasl",
-			Usage: "use-sasl",
+			Usage:  "use-sasl",
 			EnvVar: "PLUGIN_USE_SASL",
 		},
 		cli.BoolFlag{
-			Name: "debug",
-			Usage: "debug",
-			EnvVar:"PLUGIN_DEBUG",
-		},
-		cli.StringFlag{
-			Name:   "template",
-			Usage:  "Custom template for webhook",
-			EnvVar: "PLUGIN_TEMPLATE",
-		},
-		cli.StringSliceFlag{
-			Name:   "headers",
-			Usage:  "Custom headers key map",
-			EnvVar: "PLUGIN_HEADERS",
-		},
-		cli.StringSliceFlag{
-			Name:   "urls",
-			Usage:  "List of urls to perform the action on",
-			EnvVar: "PLUGIN_URLS",
+			Name:   "debug",
+			Usage:  "debug",
+			EnvVar: "PLUGIN_DEBUG",
 		},
 		cli.StringFlag{
 			Name:   "repo.owner",
