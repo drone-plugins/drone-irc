@@ -9,6 +9,10 @@ the default configuration with the following parameters:
 * `port` - IRC server port, defaults to 6667
 * `password` - Password for IRC server, optional
 * `enable_tls` - Enable TLS, defaults to false
+* `debug` - Enable the ability to debug
+* `use_sasl` - When sasl is required by the server
+* `sasl_password` - the required sasl password
+
 
 ## Example
 

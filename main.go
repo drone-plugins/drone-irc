@@ -51,12 +51,27 @@ func main() {
 		cli.StringFlag{
 			Name:   "password",
 			Usage:  "password",
-			EnvVar: "PLUGIN_PASSWORD, IRC_PASSWORD",
+			EnvVar: "PLUGIN_PASSWORD,IRC_PASSWORD",
+		},
+		cli.StringFlag{
+			Name:   "sasl-password",
+			Usage:  "sasl-password",
+			EnvVar: "PLUGIN_SASL_PASSWORD,IRC_SASL_PASSWORD",
 		},
 		cli.BoolFlag{
 			Name:   "enable-tls",
 			Usage:  "enable-tls",
 			EnvVar: "PLUGIN_ENABLE_TLS",
+		},
+		cli.BoolFlag{
+			Name:   "use-sasl",
+			Usage: "use-sasl",
+			EnvVar: "PLUGIN_USE_SASL",
+		},
+		cli.BoolFlag{
+			Name: "debug",
+			Usage: "debug",
+			EnvVar:"PLUGIN_DEBUG",
 		},
 		cli.StringFlag{
 			Name:   "template",
@@ -194,7 +209,10 @@ func run(c *cli.Context) error {
 			IRCHost:      c.String("host"),
 			IRCPort:      c.Int("port"),
 			IRCPassword:  c.String("password"),
+			SASLPassword: c.String("sasl-password"),
 			IRCEnableTLS: c.Bool("enable-tls"),
+			IRCDebug:     c.Bool("debug"),
+			IRCSASL:      c.Bool("use-sasl"),
 		},
 	}
 	return plugin.Exec()
