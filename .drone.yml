@@ -5,12 +5,14 @@ workspace:
 pipeline:
   test:
     image: golang:1.9
+    pull: true
     commands:
       - go vet
       - go test -cover -coverprofile=coverage.out
 
   build_linux_amd64:
     image: golang:1.9
+    pull: true
     group: build
     environment:
       - GOOS=linux
@@ -21,6 +23,7 @@ pipeline:
 
   build_linux_arm64:
     image: golang:1.9
+    pull: true
     group: build
     environment:
       - GOOS=linux
@@ -31,6 +34,7 @@ pipeline:
 
   build_linux_arm:
     image: golang:1.9
+    pull: true
     group: build
     environment:
       - GOOS=linux
@@ -52,6 +56,7 @@ pipeline:
 
   publish_linux_amd64:
     image: plugins/docker:17.05
+    pull: true
     repo: plugins/irc
     tags: [ latest, 1.0.0, 1.0, 1 ]
     secrets: [ docker_username, docker_password ]
@@ -62,6 +67,7 @@ pipeline:
 
   publish_linux_arm64:
     image: plugins/docker:17.05
+    pull: true
     repo: plugins/irc
     tags: [ linux-arm64 ]
     secrets: [ docker_username, docker_password ]
@@ -72,6 +78,7 @@ pipeline:
 
   publish_linux_arm:
     image: plugins/docker:17.05
+    pull: true
     repo: plugins/irc
     tags: [ linux-arm ]
     secrets: [ docker_username, docker_password ]
@@ -90,12 +97,12 @@ pipeline:
   #     branch: master
   #     event: push
 
-#  microbadger:
-#    image: plugins/webhook:1
-#    pull: true
-#    secrets: [ webhook_url ]
-#    when:
-#      branch: master
-#      event: push
-#      status: [ success ]
+  microbadger:
+    image: plugins/webhook:1
+    pull: true
+    secrets: [ webhook_url ]
+    when:
+      branch: master
+      event: push
+      status: [ success ]
 
