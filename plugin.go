@@ -43,6 +43,7 @@ type (
 		IRCDebug     bool
 		IRCSASL      bool
 		SASLPassword string
+		Template     string
 	}
 
 	Job struct {
@@ -102,7 +103,6 @@ func (p Plugin) Exec() error {
 	}()
 	client.AddCallback("001", func(event *irc.Event) {
 		var destination string
-
 		if len(p.Config.Recipient) != 0 {
 			destination = p.Config.Recipient
 		} else {
@@ -112,22 +112,15 @@ func (p Plugin) Exec() error {
 				destination = "#" + p.Config.Channel
 			}
 		}
-
 		if strings.HasPrefix(destination, "#") {
 			client.Join(destination)
 		}
-
-		client.Privmsgf(
-			destination,
-			"[%s %s/%s#%s] %s on %s by %s (%s)",
-			p.Config.Prefix,
-			p.Repo.Owner,
-			p.Repo.Name,
-			p.Build.Commit,
-			p.Build.Status,
-			p.Build.Branch,
-			p.Build.Author,
-			p.Build.Link)
+		txt, err := RenderTrim(p.Config.Template, p)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		client.Privmsg(destination, txt)
 
 		if strings.HasPrefix(destination, "#") {
 			client.Part(destination)
