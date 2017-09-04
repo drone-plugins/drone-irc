@@ -2,127 +2,203 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"net"
+	"github.com/urfave/cli"
+	"log"
 	"os"
-	"strconv"
-	"strings"
-
-	"github.com/drone/drone-go/drone"
-	"github.com/drone/drone-go/plugin"
-	"github.com/thoj/go-ircevent"
 )
 
-var (
-	buildCommit string
-)
+var build string // build number set at compile-time
 
 func main() {
-	fmt.Printf("Drone IRC Plugin built from %s\n", buildCommit)
-
-	system := drone.System{}
-	repo := drone.Repo{}
-	build := drone.Build{}
-	vargs := Params{}
-
-	plugin.Param("system", &system)
-	plugin.Param("repo", &repo)
-	plugin.Param("build", &build)
-	plugin.Param("vargs", &vargs)
-	plugin.MustParse()
-
-	if len(vargs.Channel) == 0 && len(vargs.Recipient) == 0 {
-		fmt.Println("Please provide a channel or recipient")
-
-		os.Exit(1)
-		return
+	app := cli.NewApp()
+	app.Name = "irc plugin"
+	app.Usage = "irc plugin"
+	app.Action = run
+	app.Version = fmt.Sprintf("1.0.0+%s", build)
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:   "prefix",
+			Usage:  "prefix for notification",
+			EnvVar: "PLUGIN_PREFIX",
+			Value:  "build",
+		},
+		cli.StringFlag{
+			Name:   "nick",
+			Usage:  "nickname used by bot",
+			EnvVar: "PLUGIN_NICK",
+		},
+		cli.StringFlag{
+			Name:   "channel",
+			Usage:  "channel to post message in",
+			EnvVar: "PLUGIN_CHANNEL",
+		},
+		cli.StringFlag{
+			Name:   "recipient",
+			Usage:  "recipient",
+			EnvVar: "PLUGIN_RECIPIENT",
+		},
+		cli.StringFlag{
+			Name:   "host",
+			Usage:  "host",
+			EnvVar: "PLUGIN_HOST",
+		},
+		cli.IntFlag{
+			Name:   "port",
+			Usage:  "port",
+			EnvVar: "PLUGIN_PORT",
+			Value:  6667,
+		},
+		cli.StringFlag{
+			Name:   "password",
+			Usage:  "password",
+			EnvVar: "PLUGIN_PASSWORD,IRC_PASSWORD",
+		},
+		cli.StringFlag{
+			Name:   "sasl-password",
+			Usage:  "sasl-password",
+			EnvVar: "PLUGIN_SASL_PASSWORD,IRC_SASL_PASSWORD",
+		},
+		cli.BoolFlag{
+			Name:   "enable-tls",
+			Usage:  "enable-tls",
+			EnvVar: "PLUGIN_ENABLE_TLS",
+		},
+		cli.BoolFlag{
+			Name:   "use-sasl",
+			Usage:  "use-sasl",
+			EnvVar: "PLUGIN_USE_SASL",
+		},
+		cli.BoolFlag{
+			Name:   "debug",
+			Usage:  "debug",
+			EnvVar: "PLUGIN_DEBUG",
+		},
+		cli.StringFlag{
+			Name:   "repo.owner",
+			Usage:  "repository owner",
+			EnvVar: "DRONE_REPO_OWNER",
+		},
+		cli.StringFlag{
+			Name:   "repo.name",
+			Usage:  "repository name",
+			EnvVar: "DRONE_REPO_NAME",
+		},
+		cli.StringFlag{
+			Name:   "commit.sha",
+			Usage:  "git commit sha",
+			EnvVar: "DRONE_COMMIT_SHA",
+		},
+		cli.StringFlag{
+			Name:   "commit.ref",
+			Value:  "refs/heads/master",
+			Usage:  "git commit ref",
+			EnvVar: "DRONE_COMMIT_REF",
+		},
+		cli.StringFlag{
+			Name:   "commit.branch",
+			Value:  "master",
+			Usage:  "git commit branch",
+			EnvVar: "DRONE_COMMIT_BRANCH",
+		},
+		cli.StringFlag{
+			Name:   "commit.author",
+			Usage:  "git author name",
+			EnvVar: "DRONE_COMMIT_AUTHOR",
+		},
+		cli.StringFlag{
+			Name:   "commit.message",
+			Usage:  "commit message",
+			EnvVar: "DRONE_COMMIT_MESSAGE",
+		},
+		cli.StringFlag{
+			Name:   "build.event",
+			Value:  "push",
+			Usage:  "build event",
+			EnvVar: "DRONE_BUILD_EVENT",
+		},
+		cli.IntFlag{
+			Name:   "build.number",
+			Usage:  "build number",
+			EnvVar: "DRONE_BUILD_NUMBER",
+		},
+		cli.StringFlag{
+			Name:   "build.status",
+			Usage:  "build status",
+			Value:  "success",
+			EnvVar: "DRONE_BUILD_STATUS",
+		},
+		cli.StringFlag{
+			Name:   "build.link",
+			Usage:  "build link",
+			EnvVar: "DRONE_BUILD_LINK",
+		},
+		cli.Int64Flag{
+			Name:   "build.started",
+			Usage:  "build started",
+			EnvVar: "DRONE_BUILD_STARTED",
+		},
+		cli.Int64Flag{
+			Name:   "build.created",
+			Usage:  "build created",
+			EnvVar: "DRONE_BUILD_CREATED",
+		},
+		cli.StringFlag{
+			Name:   "build.tag",
+			Usage:  "build tag",
+			EnvVar: "DRONE_TAG",
+		},
+		cli.Int64Flag{
+			Name:   "job.started",
+			Usage:  "job started",
+			EnvVar: "DRONE_JOB_STARTED",
+		},
+		cli.StringFlag{
+			Name:  "env-file",
+			Usage: "source env file",
+		},
 	}
-
-	if len(vargs.Prefix) == 0 {
-		vargs.Prefix = "build"
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
 	}
+}
 
-	if vargs.Server.Port == 0 {
-		vargs.Server.Port = 6667
+func run(c *cli.Context) error {
+
+	plugin := Plugin{
+		Repo: Repo{
+			Owner: c.String("repo.owner"),
+			Name:  c.String("repo.name"),
+		},
+		Build: Build{
+			Tag:     c.String("build.tag"),
+			Number:  c.Int("build.number"),
+			Event:   c.String("build.event"),
+			Status:  c.String("build.status"),
+			Commit:  c.String("commit.sha"),
+			Ref:     c.String("commit.ref"),
+			Branch:  c.String("commit.branch"),
+			Author:  c.String("commit.author"),
+			Message: c.String("commit.message"),
+			Link:    c.String("build.link"),
+			Started: c.Int64("build.started"),
+			Created: c.Int64("build.created"),
+		},
+		Job: Job{
+			Started: c.Int64("job.started"),
+		},
+		Config: Config{
+			Prefix:       c.String("prefix"),
+			Nick:         c.String("nick"),
+			Channel:      c.String("channel"),
+			Recipient:    c.String("recipient"),
+			IRCHost:      c.String("host"),
+			IRCPort:      c.Int("port"),
+			IRCPassword:  c.String("password"),
+			SASLPassword: c.String("sasl-password"),
+			IRCEnableTLS: c.Bool("enable-tls"),
+			IRCDebug:     c.Bool("debug"),
+			IRCSASL:      c.Bool("use-sasl"),
+		},
 	}
-
-	if len(vargs.Nick) == 0 {
-		r := rand.New(rand.NewSource(99))
-		vargs.Nick = fmt.Sprintf("drone%d", r.Int31())
-	}
-
-	client := irc.IRC(
-		vargs.Nick,
-		vargs.Nick)
-
-	if client == nil {
-		fmt.Println("Failed to create IRC Client: Invalid nick?")
-
-		os.Exit(1)
-		return
-	}
-
-	client.Password = vargs.Server.Password
-	client.UseTLS = vargs.Server.TLS
-
-	err := client.Connect(
-		net.JoinHostPort(
-			vargs.Server.Host,
-			strconv.Itoa(vargs.Server.Port)))
-
-	if err != nil {
-		fmt.Println(err)
-
-		os.Exit(1)
-		return
-	}
-
-	go func() {
-		if err := <-client.ErrorChan(); err != nil {
-			fmt.Println(err)
-
-			os.Exit(1)
-			return
-		}
-	}()
-
-	client.AddCallback("001", func(_ *irc.Event) {
-		var destination string
-
-		if len(vargs.Recipient) != 0 {
-			destination = vargs.Recipient
-		} else {
-			if strings.HasPrefix(vargs.Channel, "#") {
-				destination = vargs.Channel
-			} else {
-				destination = "#" + vargs.Channel
-			}
-		}
-
-		if strings.HasPrefix(destination, "#") {
-			client.Join(destination)
-		}
-
-		client.Privmsgf(
-			destination,
-			"[%s %s/%s#%s] %s on %s by %s (%s/%s/%v)",
-			vargs.Prefix,
-			repo.Owner,
-			repo.Name,
-			build.Commit[:8],
-			build.Status,
-			build.Branch,
-			build.Author,
-			system.Link,
-			repo.FullName,
-			build.Number)
-
-		if strings.HasPrefix(destination, "#") {
-			client.Part(destination)
-		}
-
-		client.Quit()
-	})
-
-	client.Loop()
+	return plugin.Exec()
 }
