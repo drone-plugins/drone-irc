@@ -3,6 +3,30 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "PZ4KJai7DnuJ2YNJ2v2l2BseB1g=",
+			"path": "github.com/aymerick/raymond",
+			"revision": "72acac2207479d21dd45898c2a4264246c818148",
+			"revisionTime": "2016-12-09T22:07:24Z"
+		},
+		{
+			"checksumSHA1": "Rvn+RH9pwFno1w6W+mhWsj/PxlA=",
+			"path": "github.com/aymerick/raymond/ast",
+			"revision": "72acac2207479d21dd45898c2a4264246c818148",
+			"revisionTime": "2016-12-09T22:07:24Z"
+		},
+		{
+			"checksumSHA1": "5SJwPK0MYtJt5YiE1BNc9Wl3+S0=",
+			"path": "github.com/aymerick/raymond/lexer",
+			"revision": "72acac2207479d21dd45898c2a4264246c818148",
+			"revisionTime": "2016-12-09T22:07:24Z"
+		},
+		{
+			"checksumSHA1": "TCu/8QBP8TApLjSt13a7Qjnyxrs=",
+			"path": "github.com/aymerick/raymond/parser",
+			"revision": "72acac2207479d21dd45898c2a4264246c818148",
+			"revisionTime": "2016-12-09T22:07:24Z"
+		},
+		{
 			"checksumSHA1": "R0hwmWSA3CEsjUdNqP9oBK798tk=",
 			"path": "github.com/thoj/go-ircevent",
 			"revision": "1b0acb5f2f1b615cfbd4b9f91abb14cb39a18769",
