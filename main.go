@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-const DEFAULT_TEMPLATE = "*{{build.status}}* <{{build.link}}|{{repo.owner}}/{{repo.name}}#{{truncate build.commit 8}} ({{build.branch}}) by {{build.author}}"
+const defaultTemplate = "*{{build.status}}* <{{build.link}}|{{repo.owner}}/{{repo.name}}#{{truncate build.commit 8}} ({{build.branch}}) by {{build.author}}"
 
 var build string // build number set at compile-time
 
@@ -79,7 +79,7 @@ func main() {
 			Name:   "template",
 			Usage:  "template",
 			EnvVar: "PLUGIN_TEMPLATE",
-			Value:  DEFAULT_TEMPLATE,
+			Value:  defaultTemplate,
 		},
 		cli.StringFlag{
 			Name:   "repo.owner",
