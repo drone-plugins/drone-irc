@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+const defaultTemplate = "*{{build.status}}* <{{build.link}}|{{repo.owner}}/{{repo.name}}#{{truncate build.commit 8}} ({{build.branch}}) by {{build.author}}"
+
 var build string // build number set at compile-time
 
 func main() {
@@ -72,6 +74,12 @@ func main() {
 			Name:   "debug",
 			Usage:  "debug",
 			EnvVar: "PLUGIN_DEBUG",
+		},
+		cli.StringFlag{
+			Name:   "template",
+			Usage:  "template",
+			EnvVar: "PLUGIN_TEMPLATE",
+			Value:  defaultTemplate,
 		},
 		cli.StringFlag{
 			Name:   "repo.owner",
@@ -198,6 +206,7 @@ func run(c *cli.Context) error {
 			IRCEnableTLS: c.Bool("enable-tls"),
 			IRCDebug:     c.Bool("debug"),
 			IRCSASL:      c.Bool("use-sasl"),
+			Template:     c.String("template"),
 		},
 	}
 	return plugin.Exec()
