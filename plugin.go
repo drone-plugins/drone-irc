@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/thoj/go-ircevent"
 	"math/rand"
 	"net"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/drone/drone-template-lib/template"
+	"github.com/pkg/errors"
+	"github.com/thoj/go-ircevent"
 )
 
 type (
@@ -59,9 +62,8 @@ type (
 )
 
 func (p Plugin) Exec() error {
-
 	if len(p.Config.Channel) == 0 && len(p.Config.Recipient) == 0 {
-		return fmt.Errorf("Please provide a channel or recipient")
+		return errors.New("Please provide a channel or recipient")
 	}
 
 	if len(p.Config.Nick) == 0 {
@@ -69,40 +71,40 @@ func (p Plugin) Exec() error {
 		p.Config.Nick = fmt.Sprintf("drone%d", r.Int31())
 	}
 
-	client := irc.IRC(
-		p.Config.Nick,
-		p.Config.Nick)
+	client := irc.IRC(p.Config.Nick, p.Config.Nick)
 
 	if client == nil {
-		return fmt.Errorf("Failed to create IRC Client: Invalid nick?")
+		return errors.New("Failed to create IRC Client: Invalid nick?")
 	}
 
 	client.Password = p.Config.IRCPassword
 	client.UseTLS = p.Config.IRCEnableTLS
 	client.Debug = p.Config.IRCDebug
 	client.UseSASL = p.Config.IRCSASL
+
 	if p.Config.IRCSASL {
 		client.SASLLogin = p.Config.Nick
 		client.SASLPassword = p.Config.SASLPassword
 	}
 
-	err := client.Connect(
-		net.JoinHostPort(
-			p.Config.IRCHost,
-			strconv.Itoa(p.Config.IRCPort)))
+	err := client.Connect(net.JoinHostPort(p.Config.IRCHost, strconv.Itoa(p.Config.IRCPort)))
+
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to connect to server")
 	}
 
 	go func() {
 		if err := <-client.ErrorChan(); err != nil {
-			fmt.Println(err)
+			errors.Wrap(err, "received an error from server")
+
 			os.Exit(1)
 			return
 		}
 	}()
+
 	client.AddCallback("001", func(event *irc.Event) {
 		var destination string
+
 		if len(p.Config.Recipient) != 0 {
 			destination = p.Config.Recipient
 		} else {
@@ -112,19 +114,26 @@ func (p Plugin) Exec() error {
 				destination = "#" + p.Config.Channel
 			}
 		}
+
 		if strings.HasPrefix(destination, "#") {
 			client.Join(destination)
 		}
-		txt, err := RenderTrim(p.Config.Template, p)
+
+		txt, err := template.RenderTrim(p.Config.Template, p)
+
 		if err != nil {
-			fmt.Println(err)
+			errors.Wrap(err, "failed to render template")
+
 			os.Exit(1)
+			return
 		}
+
 		client.Privmsg(destination, txt)
 
 		if strings.HasPrefix(destination, "#") {
 			client.Part(destination)
 		}
+
 		client.Quit()
 	})
 
