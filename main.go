@@ -7,16 +7,17 @@ import (
 	"os"
 )
 
-const defaultTemplate = "*{{build.status}}* <{{build.link}}|{{repo.owner}}/{{repo.name}}#{{truncate build.commit 8}} ({{build.branch}}) by {{build.author}}"
-
-var build string // build number set at compile-time
+var (
+	version = "0.0.0"
+	build   = "0"
+)
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "irc plugin"
 	app.Usage = "irc plugin"
+	app.Version = fmt.Sprintf("%s+%s", version, build)
 	app.Action = run
-	app.Version = fmt.Sprintf("1.0.0+%s", build)
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "prefix",
@@ -79,7 +80,7 @@ func main() {
 			Name:   "template",
 			Usage:  "template",
 			EnvVar: "PLUGIN_TEMPLATE",
-			Value:  defaultTemplate,
+			Value:  "*{{build.status}}* <{{build.link}}|{{repo.owner}}/{{repo.name}}#{{truncate build.commit 8}} ({{build.branch}}) by {{build.author}}",
 		},
 		cli.StringFlag{
 			Name:   "repo.owner",
@@ -160,18 +161,14 @@ func main() {
 			Usage:  "job started",
 			EnvVar: "DRONE_JOB_STARTED",
 		},
-		cli.StringFlag{
-			Name:  "env-file",
-			Usage: "source env file",
-		},
 	}
+
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func run(c *cli.Context) error {
-
 	plugin := Plugin{
 		Repo: Repo{
 			Owner: c.String("repo.owner"),
@@ -209,5 +206,6 @@ func run(c *cli.Context) error {
 			Template:     c.String("template"),
 		},
 	}
+
 	return plugin.Exec()
 }
