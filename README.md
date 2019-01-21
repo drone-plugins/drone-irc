@@ -7,7 +7,6 @@
 [![](https://images.microbadger.com/badges/image/plugins/irc.svg)](https://microbadger.com/images/plugins/irc "Get your own image badge on microbadger.com")
 [![Go Doc](https://godoc.org/github.com/drone-plugins/drone-irc?status.svg)](http://godoc.org/github.com/drone-plugins/drone-irc)
 [![Go Report](https://goreportcard.com/badge/github.com/drone-plugins/drone-irc)](https://goreportcard.com/report/github.com/drone-plugins/drone-irc)
-[![](https://images.microbadger.com/badges/image/plugins/irc.svg)](https://microbadger.com/images/plugins/irc "Get your own image badge on microbadger.com")
 
 Drone plugin to send build status notifications via IRC. For the usage information and a listing of the available options please take a look at [the docs](DOCS.md).
 
