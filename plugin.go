@@ -10,7 +10,7 @@ import (
 
 	"github.com/drone/drone-template-lib/template"
 	"github.com/pkg/errors"
-	"github.com/thoj/go-ircevent"
+	irc "github.com/thoj/go-ircevent"
 )
 
 type (
@@ -95,7 +95,7 @@ func (p Plugin) Exec() error {
 
 	go func() {
 		if err := <-client.ErrorChan(); err != nil {
-			errors.Wrap(err, "received an error from server")
+			_ = errors.Wrap(err, "received an error from server")
 
 			os.Exit(1)
 			return
@@ -122,7 +122,7 @@ func (p Plugin) Exec() error {
 		txt, err := template.RenderTrim(p.Config.Template, p)
 
 		if err != nil {
-			errors.Wrap(err, "failed to render template")
+			_ = errors.Wrap(err, "failed to render template")
 
 			os.Exit(1)
 			return
