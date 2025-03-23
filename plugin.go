@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"crypto/tls"
 
 	"github.com/drone/drone-template-lib/template"
 	"github.com/pkg/errors"
@@ -85,6 +86,12 @@ func (p Plugin) Exec() error {
 	if p.Config.IRCSASL {
 		client.SASLLogin = p.Config.Nick
 		client.SASLPassword = p.Config.SASLPassword
+	}
+
+	if client.UseTLS {
+		client.TLSConfig = &tls.Config{
+			ServerName: p.Config.IRCHost,
+		}
 	}
 
 	err := client.Connect(net.JoinHostPort(p.Config.IRCHost, strconv.Itoa(p.Config.IRCPort)))
